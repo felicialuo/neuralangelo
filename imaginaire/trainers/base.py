@@ -16,6 +16,7 @@ import os
 import threading
 import time
 import wandb
+wandb.login(key="ad080bdf8e10b2eb98c927e7725d6d223ad42e2c") 
 from tqdm import tqdm
 import inspect
 
