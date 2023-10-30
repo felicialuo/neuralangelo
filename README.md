@@ -1,3 +1,113 @@
+# Neuralangelo Ubuntu Implementation
+This is my implementation tested on Ubuntu 22.04.3 LTS, with AMD® Ryzen 9 7900x & NVIDIA GeForce RTX 3090 Ti, based on the official instructions below. Find more in the official READMEs.
+
+## Data Preprocessing
+Specify below the captured video path and name. DOWNSAMPLE_RATE should be determined based on the original fps. Following instant-ngp's recommendation, the final images should be 50-150. 
+
+```bash
+SEQUENCE=living_room
+PATH_TO_VIDEO=living_room.MOV
+DOWNSAMPLE_RATE=12
+SCENE_TYPE=indoor #{outdoor,indoor,object}
+bash projects/neuralangelo/scripts/preprocess.sh ${SEQUENCE} ${PATH_TO_VIDEO} ${DOWNSAMPLE_RATE} ${SCENE_TYPE}
+```
+Processed images will be in `./datasets/${SEQUENCE}_${DOWNSAMPLE_RATE}`. 
+Inspect and adjust COLMAP results `readjust_center` and `readjust_scale` in `./projects/neuralangelo/scripts/visualize_colmap.ipynb`.
+
+## Run Neuralangelo
+Specify `EXPERIMENT`, `GROUP`, `NAME`, and other config flags as in this example script. 
+```bash
+EXPERIMENT=living_room
+GROUP=living_room
+NAME=living_room
+CONFIG=projects/neuralangelo/configs/custom/${EXPERIMENT}.yaml
+GPUS=1  # use >1 for multi-GPU training!
+torchrun --nproc_per_node=${GPUS} train.py \
+    --logdir=logs/${GROUP}/${NAME} \
+    --config=${CONFIG} \
+		--data.train.batch_size=4 \
+    --data.readjust.scale=1.25 \
+		--data.readjust.center=[0.0,0.0,0.0]\
+		--logging_iter=10000 \
+		--image_save_iter=10000 \
+		--checkpoint.save_iter=10000 \
+		--show_pbar \
+    --wandb \
+    --wandb_name='neuralangelo_living_room'
+```
+Make sure to check the config prints before training.
+
+### Load Checkpoint and Resume Training
+Specify `EXPERIMENT`, `GROUP`, `NAME`, `CHECKPOINT_PATH`, and other config flags.
+```bash
+EXPERIMENT=living_room
+GROUP=living_room
+NAME=living_room
+CONFIG=projects/neuralangelo/configs/custom/${EXPERIMENT}.yaml
+GPUS=1  # use >1 for multi-GPU training!
+CHECKPOINT_PATH=logs/${GROUP}/${NAME}/epoch_00789_iteration_000030000_checkpoint.pt
+torchrun --nproc_per_node=${GPUS} train.py \
+    --logdir=logs/${GROUP}/${NAME} \
+    --config=${CONFIG} \
+		--data.train.batch_size=4 \
+    --data.readjust.scale=1.25 \
+		--logging_iter=10000 \
+		--image_save_iter=10000 \
+		--checkpoint.save_iter=10000 \
+		--show_pbar \
+    --wandb \
+    --wandb_name='neuralangelo' \
+		--checkpoint=${CHECKPOINT_PATH} \
+		--resume
+```
+
+## Extract Mesh
+Once the training is finished, you can extract the mesh as ply file. Specify  `GROUP`, `NAME`, `CHECKPOINT_PATH`, `OUTPUT_MESH`, and `RESOLUTION`.
+```bash
+GROUP=living_room
+NAME=living_room
+CHECKPOINT=logs/${GROUP}/${NAME}/epoch_03420_iteration_000130000_checkpoint.pt
+OUTPUT_MESH=logs/${GROUP}/${NAME}/living_room_ckpt130k.ply
+CONFIG=logs/${GROUP}/${NAME}/config.yaml
+RESOLUTION=1024
+BLOCK_RES=128
+GPUS=1  # use >1 for multi-GPU mesh extraction
+torchrun --nproc_per_node=${GPUS} projects/neuralangelo/scripts/extract_mesh.py \
+    --config=${CONFIG} \
+    --checkpoint=${CHECKPOINT} \
+    --output_file=${OUTPUT_MESH} \
+    --resolution=${RESOLUTION} \
+    --block_res=${BLOCK_RES} \
+		--textured
+```
+
+## Results
+### lego
+- Implemented on the provided colab example file using a free T4 GPU 
+- Number of final training images: 100 (`DOWNSAMPLE_RATE=2`)
+- Training time: 20k iterations ~2 hours 
+- Result (`RESOLUTION=300`)
+
+### meeting_room
+- Ran locally on Ubuntu desktop 
+- Number of final training images: 638 (`DOWNSAMPLE_RATE=2`)
+- Training time: 400k iteration ~50 hours 
+- Result (`RESOLUTION=512`)
+
+### workshop
+- Ran locally on Ubuntu desktop 
+- Number of final training images: 156 (`DOWNSAMPLE_RATE=10`)
+- Training time: 160k iteration ~10 hours 
+- Result (`RESOLUTION=1024`)
+
+### living_room
+- Ran locally on Ubuntu desktop 
+- Number of final training images: 152 (`DOWNSAMPLE_RATE=12`)
+- Training time: 130k iteration ~21 hours 
+- Result (`RESOLUTION=1024`)
+
+### --END of my implementation
+
 # Neuralangelo
 This is the official implementation of **Neuralangelo: High-Fidelity Neural Surface Reconstruction**.
 
