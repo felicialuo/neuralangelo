@@ -116,7 +116,7 @@ torchrun --nproc_per_node=${GPUS} projects/neuralangelo/scripts/extract_mesh.py 
 - Result (`RESOLUTION=1024`): <img width="500" alt="living_room_ckpt130k" src="https://github.com/felicialuo/neuralangelo/assets/129685045/e799db9b-d289-46be-b602-267fa9bad533">
 
 
-### --END of my implementation
+**--END of my implementation--**
 
 # Neuralangelo
 This is the official implementation of **Neuralangelo: High-Fidelity Neural Surface Reconstruction**.
