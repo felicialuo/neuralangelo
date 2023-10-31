@@ -81,30 +81,42 @@ torchrun --nproc_per_node=${GPUS} projects/neuralangelo/scripts/extract_mesh.py 
 		--textured
 ```
 
+## Tips on Capturing Your Own Dataset:
+- Use high resolution, fixed aperture/focal length, fixed exposure
+- Best camera movement is to aim inward at an object of interest and move around, try to capture all faces of the object, and make sure images overlap a lot
+- Move slowly, avoid motion blur, delete blurry images if needed
+- Authors suggest 50-150 final images
+
+Note: the reconstruction will only look decent on or near the angle you captured.
+
 ## Results
 ### lego
 - Implemented on the provided colab example file using a free T4 GPU 
 - Number of final training images: 100 (`DOWNSAMPLE_RATE=2`)
 - Training time: 20k iterations ~2 hours 
-- Result (`RESOLUTION=300`)
+- Result (`RESOLUTION=300`): <img width="500" alt="lego_300" src="https://github.com/felicialuo/neuralangelo/assets/129685045/9930cd3c-4c26-4856-b776-e6896bf695ac">
+
 
 ### meeting_room
 - Ran locally on Ubuntu desktop 
 - Number of final training images: 638 (`DOWNSAMPLE_RATE=2`)
 - Training time: 400k iteration ~50 hours 
-- Result (`RESOLUTION=512`)
+- Result (`RESOLUTION=512`): <img width="500" alt="meeting_room_ckpt400k_512" src="https://github.com/felicialuo/neuralangelo/assets/129685045/a0cbe180-c4f9-4b20-b625-87d09975193c">
+
 
 ### workshop
 - Ran locally on Ubuntu desktop 
 - Number of final training images: 156 (`DOWNSAMPLE_RATE=10`)
 - Training time: 160k iteration ~10 hours 
-- Result (`RESOLUTION=1024`)
+- Result (`RESOLUTION=1024`): <img width="500" alt="workshop_ckpt160k_1024" src="https://github.com/felicialuo/neuralangelo/assets/129685045/d26e983d-032a-439f-b965-ac44208214a5">
+
 
 ### living_room
 - Ran locally on Ubuntu desktop 
 - Number of final training images: 152 (`DOWNSAMPLE_RATE=12`)
 - Training time: 130k iteration ~21 hours 
-- Result (`RESOLUTION=1024`)
+- Result (`RESOLUTION=1024`): <img width="500" alt="living_room_ckpt130k" src="https://github.com/felicialuo/neuralangelo/assets/129685045/e799db9b-d289-46be-b602-267fa9bad533">
+
 
 ### --END of my implementation
 
